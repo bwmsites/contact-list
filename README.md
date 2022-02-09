@@ -1,2 +1,2 @@
 # contact-list
-Simple application for contacts list management
+Simple application for a contacts list management
