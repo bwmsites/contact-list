@@ -12,7 +12,7 @@ export default class Contact extends BaseModel {
   public email: string
 
   @column({ })
-  public deleted: string
+  public deleted: boolean
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
