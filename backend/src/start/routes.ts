@@ -23,3 +23,14 @@ import Route from '@ioc:Adonis/Core/Route'
 Route.get('/', async () => {
   return { hello: 'Welcome to contactor api v. 0.0.1' }
 })
+
+Route.group(() => {
+  Route.group(() => {
+    Route.get('/', 'ContactsController.getAllContacts')
+    Route.get('/:contactId', 'ContactsController.getContactById')
+    Route.post('/', 'ContactsController.createContact')
+    Route.patch('/:contactId', 'ContactsController.updateContact')
+    Route.delete('/:contactId', 'ContactsController.deleteContact')
+    Route.patch('/:contactId/restore', 'ContactsController.restoreContact')
+  }).prefix('/contacts')
+}).prefix('/api')
