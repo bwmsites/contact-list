@@ -7,8 +7,7 @@ const serviceRequest = axios.create({
 
 const CONTACTS_URL = '/contacts'
 
-export const getAllContacts = async () => {
-    const response = await serviceRequest.get(`${CONTACTS_URL}`)
-    console.log('Contacts Got: ', response.data)
+export const getAllContacts = async (includeDeleted) => {
+    const response = await serviceRequest.get(`${CONTACTS_URL}${includeDeleted ? '?includeDeleted=true' : ''}`)
     return response
 }
