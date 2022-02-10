@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllContacts } from '../../services/contactService';
+import { getAllContacts, deleteContact, restoreContact, updateContact } from '../../services/contactService';
 import {
     Container,
     Box,
@@ -34,9 +34,11 @@ const BUTTON_LABELS = {
     update: 'Update Contact'
 }
 
+const CONTACT_ORIGINAL_STATUS = { name: null, phone: null, deleted: false }
+
 const Home = () => {
     const [contacts, setContacts] = useState([])
-    const [includeDeleted, setIncludeDeleted] = useState(true)
+    const [includeDeleted, setIncludeDeleted] = useState(false)
 
     const handleGetContactsList = async (includeDeleted = false) => {
         const response = await getAllContacts(includeDeleted);
@@ -46,6 +48,7 @@ const Home = () => {
             setTableMessage(TABLE_MESSAGES.filled)
         }
     }
+
     useEffect(() => {
         const fetchContacts = async () => {
             await handleGetContactsList(includeDeleted);
@@ -54,7 +57,7 @@ const Home = () => {
         fetchContacts()
     }, [includeDeleted])
 
-    const [contact, setContact] = useState({ name: null, phone: null, deleted: false })
+    const [contact, setContact] = useState(CONTACT_ORIGINAL_STATUS)
     const [tableMessage, setTableMessage] = useState(TABLE_MESSAGES.empty)
     const [currentOperation, setCurrentOperation] = useState(OPERATIONS.create)
 
@@ -77,6 +80,40 @@ const Home = () => {
         setCurrentOperation(OPERATIONS.update)
     }
 
+    const resetStates = () => {
+        setContact(CONTACT_ORIGINAL_STATUS)
+        setCurrentOperation(OPERATIONS.create)
+    }
+
+    const handleDeleteContact = async () => {
+        const response = await deleteContact(contact.contact_id)
+
+        if (response.status === 200) {
+            handleGetContactsList()
+            resetStates()
+        }
+    }
+
+    const handleRestoreContact = async () => {
+        const response = await restoreContact(contact.contact_id)
+
+        if (response.status === 200) {
+            handleSelectContact(response.data)
+            handleGetContactsList()
+        }
+    }
+
+    const handleUpdateContact = async () => {
+        const response = await updateContact(contact.contact_id, contact)
+
+        if (response.status === 422) {
+            console.log('DEU ERRO: ', response.data.message)
+            return
+        }
+        
+        handleGetContactsList()
+    }
+
     return (
         <>
         <Box bgColor='teal.500' h='60px'>
@@ -95,6 +132,7 @@ const Home = () => {
                         colorScheme='blue'
                         size='sm'
                         disabled={currentOperation === OPERATIONS.delete || contact.name === null || contact.deleted}
+                        onClick={currentOperation === OPERATIONS.create ? () => {} : handleUpdateContact}
                     >
                         { BUTTON_LABELS[currentOperation] }
                     </Button>
@@ -103,6 +141,7 @@ const Home = () => {
                         size='sm'
                         disabled={currentOperation === OPERATIONS.create || contact.deleted}
                         marginLeft='2'
+                        onClick={handleDeleteContact}
                     >
                         Delete Contact
                     </Button>
@@ -111,6 +150,7 @@ const Home = () => {
                         size='sm'
                         display={contact.deleted ? 'block' : 'none'}
                         marginLeft='20'
+                        onClick={handleRestoreContact}
                     >
                         Restore Contact
                     </Button>

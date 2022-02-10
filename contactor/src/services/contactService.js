@@ -11,3 +11,18 @@ export const getAllContacts = async (includeDeleted) => {
     const response = await serviceRequest.get(`${CONTACTS_URL}${includeDeleted ? '?includeDeleted=true' : ''}`)
     return response
 }
+
+export const deleteContact = async (contactId) => {
+    const response = await serviceRequest.delete(`${CONTACTS_URL}/${contactId}`)
+    return response
+}
+
+export const restoreContact = async (contactId) => {
+    const response = await serviceRequest.patch(`${CONTACTS_URL}/${contactId}/restore`)
+    return response
+}
+
+export const updateContact = async (contactId, data) => {
+    const response = await serviceRequest.patch(`${CONTACTS_URL}/${contactId}`, data)
+    return response
+}
