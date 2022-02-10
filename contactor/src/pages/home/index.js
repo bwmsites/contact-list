@@ -33,7 +33,7 @@ const Home = () => {
         fetchContacts()
     }, [])
 
-    const [contact, setContact] = useState({ name: null, email: null })
+    const [contact, setContact] = useState({ name: null, phone: null })
     const [tableMessage, setTableMessage] = useState('No Contacts to Show')
 
     const handleChangeContactName = (event) => {
@@ -43,9 +43,9 @@ const Home = () => {
         })
     }
 
-    const handleChangeContactEmail = (event) => {
+    const handleChangeContactPhone = (event) => {
         setContact({
-            email: event.target.value,
+            phone: event.target.value,
             ...contact
         })
     }
@@ -59,7 +59,7 @@ const Home = () => {
             <Box marginBottom='30'>
                 <Flex>
                     <Input width='auto' placeholder='Contact Name' value={contact.name} onChange={handleChangeContactName} />
-                    <Input width='auto' placeholder='Contact Email' value={contact.email} onChange={handleChangeContactEmail} />
+                    <Input width='auto' placeholder='Contact Phone' value={contact.phone} onChange={handleChangeContactPhone} />
                 </Flex>
             </Box>
             <Box>
@@ -68,14 +68,14 @@ const Home = () => {
                     <Thead>
                         <Tr>
                             <Th>Name</Th>
-                            <Th>Email</Th>
+                            <Th>Phone</Th>
                         </Tr>
                     </Thead>
                     <Tbody cursor='pointer'>
                         { contacts.length && contacts.map(contact => (
                             <Tr onClick={() => handleSelectContact(contact)}>
                                 <Td>{contact.name}</Td>
-                                <Td>{contact.email}</Td>
+                                <Td>{contact.phone}</Td>
                             </Tr>
                         ))}
                     </Tbody>
