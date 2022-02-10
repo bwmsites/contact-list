@@ -77,7 +77,7 @@ const Home = () => {
                                 <Td>{contact.name}</Td>
                                 <Td>{contact.email}</Td>
                             </Tr>
-                        )) }
+                        ))}
                     </Tbody>
                 </Table>
             </Box>
