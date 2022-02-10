@@ -26,8 +26,12 @@ const Home = () => {
         }
     }
     useEffect(() => {
-        handleGetContactsList();
-    }, [contacts])
+        const fetchContacts = async () => {
+            await handleGetContactsList();
+        }
+        
+        fetchContacts()
+    }, [])
 
     const [contact, setContact] = useState({ name: null, email: null })
     const [tableMessage, setTableMessage] = useState('No Contacts to Show')
@@ -37,11 +41,13 @@ const Home = () => {
             name: event.target.value,
             ...contact
         })
-        console.log(event.target.value)
     }
 
     const handleChangeContactEmail = (event) => {
-
+        setContact({
+            email: event.target.value,
+            ...contact
+        })
     }
 
     const handleSelectContact = (selectedContact) => {
@@ -66,7 +72,7 @@ const Home = () => {
                         </Tr>
                     </Thead>
                     <Tbody cursor='pointer'>
-                        { contacts.map(contact => (
+                        { contacts.length && contacts.map(contact => (
                             <Tr onClick={() => handleSelectContact(contact)}>
                                 <Td>{contact.name}</Td>
                                 <Td>{contact.email}</Td>
