@@ -6,27 +6,27 @@ export default class ContactSeeder extends BaseSeeder {
     await Contact.createMany([
       {
         name: 'Winston Churchill',
-        email: 'wchurchill@buckingham.en',
+        phone: '555-9352',
         deleted: false
       },
       {
         name: 'Slade Wilson',
-        email: 'slade.wilson@deathstroke.com',
+        phone: '555-8151',
         deleted: false
       },
       {
         name: 'Sarah Libermahn',
-        email: 'slibermahn@subtaken.org',
+        phone: '555-2802',
         deleted: false
       },
       {
         name: 'Angel Vivaldi',
-        email: 'vivaldi@theprovider.com',
+        phone: '555-6594',
         deleted: false
       },
       {
         name: 'Scruge McDuck',
-        email: 'scruge@unclemcduck.net',
+        phone: '555-8732',
         deleted: false
       }
     ])

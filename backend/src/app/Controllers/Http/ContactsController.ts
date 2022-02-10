@@ -4,9 +4,9 @@ import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import Contact from 'App/Models/Contact'
 
 export default class ContactsController {
-	emailExistsResponse = {
-		message: 'The given email address already exists in database',
-		code: 'EMAIL_ALREADY_EXISTIS',
+	phoneExistsResponse = {
+		message: 'The given phone number already exists in database',
+		code: 'PHONE_ALREADY_EXISTIS',
 	}
 
 	public async getAllContacts({ request }: HttpContextContract) {
@@ -28,27 +28,21 @@ export default class ContactsController {
 	public async createContact({ request, response }: HttpContextContract) {
 		const newContactSchema = schema.create({
 			name: schema.string(),
-			email: schema.string({}, [
-				rules.email({
-					sanitize: true,
-					ignoreMaxLength: true,
-					domainSpecificValidation: true,
-				}),
-			]),
+			phone: schema.string(),
 		})
 
 		try {
-			const { name, email } = await request.validate({ schema: newContactSchema })
+			const { name, phone } = await request.validate({ schema: newContactSchema })
 
 			// Despite the database already handles duplicates I decided to use this approach for
 			// handling the response manually
-			const contact = await Contact.findBy('email', email)
+			const contact = await Contact.findBy('phone', phone)
 
 			if (contact) {
-				return response.status(422).send(this.emailExistsResponse)
+				return response.status(422).send(this.phoneExistsResponse)
 			}
 
-			const newContact = await Contact.create({ name, email, deleted: false })
+			const newContact = await Contact.create({ name, phone, deleted: false })
 			return response.status(201).send(newContact)
 		} catch (error) {
 			response.badRequest(error.messages)
@@ -60,30 +54,24 @@ export default class ContactsController {
 
 		const updateContactSchema = schema.create({
 			name: schema.string.optional(),
-			email: schema.string.optional({}, [
-				rules.email({
-					sanitize: true,
-					ignoreMaxLength: true,
-					domainSpecificValidation: true,
-				}),
-			]),
+			phone: schema.string.optional(),
 		})
 
 		try {
-			const { name, email } = await request.validate({ schema: updateContactSchema })
+			const { name, phone } = await request.validate({ schema: updateContactSchema })
 
 			// Despite the database already handles duplicates I decided to use this approach for
 			// handling the response manually and make it more friendly
-			if (email) {
-				const existingContact = await Contact.findBy('email', email)
+			if (phone) {
+				const existingContact = await Contact.findBy('phone', phone)
 
 				if (existingContact && existingContact.contactId !== contactId) {
-					return response.status(422).send(this.emailExistsResponse)
+					return response.status(422).send(this.phoneExistsResponse)
 				}
 			}
 
 			const contact = await Contact.findOrFail(contactId)
-			contact.merge({ name, email })
+			contact.merge({ name, phone })
 			await contact.save()
 
 			return contact

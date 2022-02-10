@@ -9,7 +9,7 @@ export default class Contact extends BaseModel {
   public name: string
 
   @column()
-  public email: string
+  public phone: string
 
   @column({ })
   public deleted: boolean
