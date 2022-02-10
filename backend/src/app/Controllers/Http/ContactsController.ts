@@ -16,7 +16,7 @@ export default class ContactsController {
 			return await Contact.all()
 		}
 
-		return await Contact.findByOrFail('deleted', false)
+		return await Contact.query().select().where('deleted', false)
 	}
 
 	public async getContactById({ request }: HttpContextContract) {
