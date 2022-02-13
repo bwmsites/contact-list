@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import httpStatus from 'http-status';
+import { OPERATIONS, TABLE_MESSAGES, BUTTON_LABELS } from '../../constants';
 import { getAllContacts, deleteContact, restoreContact, updateContact, createContact } from '../../services/contactService';
 import {
     Container,
@@ -24,23 +25,6 @@ import {
     AlertDialogFooter,
     useToast
 } from "@chakra-ui/react";
-
-
-const TABLE_MESSAGES = {
-    filled: 'Click over a contact to select it',
-    empty: 'No contacts to show'
-}
-
-const OPERATIONS = {
-    create: 'create',
-    update: 'update',
-    delete: 'delete'
-}
-
-const BUTTON_LABELS = {
-    create: 'Add Contact',
-    update: 'Update Contact'
-}
 
 const CONTACT_ORIGINAL_STATUS = { name: null, phone: null, deleted: false }
 
