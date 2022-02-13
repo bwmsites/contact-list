@@ -19,3 +19,10 @@ export const FEEDBACK_STATUS_TYPE = {
     warning: 'warning',
     error: 'error'
 }
+
+export const FEEDBACK_TITLE_TEXT = {
+    created: 'Contact successfuly created',
+    updated: 'Contact successfuly updated',
+    deleted: 'Contact successfuly deleted',
+    error: 'Something went wrong'
+}

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import httpStatus from 'http-status';
-import { OPERATIONS, TABLE_MESSAGES, BUTTON_LABELS, FEEDBACK_STATUS_TYPE } from '../../constants';
+import { OPERATIONS, TABLE_MESSAGES, BUTTON_LABELS, FEEDBACK_STATUS_TYPE, FEEDBACK_TITLE_TEXT } from '../../constants';
 import { getAllContacts, deleteContact, restoreContact, updateContact, createContact } from '../../services/contactService';
+import { getCreateContactSuccessMessage, getDeleteContactSuccessMessage, getUpdateContactSuccessMessage } from '../../helpers/feedbackMessagesHelper';
 import {
     Container,
     Box,
@@ -86,12 +87,12 @@ const Home = () => {
         // TODO: Find a best way to handle axios errors without handling promises like this
         // NOTE: async / await seems to not work as expected when error are caught
         createContact(contact).then(response => {
-            handleShowFeedbackMessage('Contact successfuly created', `Contact ${contact.name} has been created.`, FEEDBACK_STATUS_TYPE.success);
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.created, getCreateContactSuccessMessage(contact.name), FEEDBACK_STATUS_TYPE.success);
             handleGetContactsList()
             setContact(response.data)
         }).catch(error => {
             const { data: { message }, status } = error.response
-            handleShowFeedbackMessage('Something went wrong', message, (status === httpStatus.UNPROCESSABLE_ENTITY ? FEEDBACK_STATUS_TYPE.warning : FEEDBACK_STATUS_TYPE.error))
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.error, message, (status === httpStatus.UNPROCESSABLE_ENTITY ? FEEDBACK_STATUS_TYPE.warning : FEEDBACK_STATUS_TYPE.error))
         })
     }
 
@@ -99,18 +100,18 @@ const Home = () => {
         const response = await deleteContact(contact.contact_id)
 
         if (response.status === httpStatus.OK) {
-            handleShowFeedbackMessage('Contact successfuly deleted', `Contact ${contact.name} has been deleted`, FEEDBACK_STATUS_TYPE.success)
-            handleGetContactsList()
-            resetStates()
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.deleted, getDeleteContactSuccessMessage(contact.name), FEEDBACK_STATUS_TYPE.success);
+            handleGetContactsList();
+            resetStates();
         }
     }
 
     const handleRestoreContact = async () => {
-        const response = await restoreContact(contact.contact_id)
+        const response = await restoreContact(contact.contact_id);
 
         if (response.status === httpStatus.OK) {
-            handleSelectContact(response.data)
-            handleGetContactsList()
+            handleSelectContact(response.data);
+            handleGetContactsList();
         }
     }
 
@@ -118,11 +119,12 @@ const Home = () => {
         // TODO: Find a best way to handle axios errors without handling promises like this
         // NOTE: async / await seems to not work as expected when error are caught  
         updateContact(contact.contact_id, contact).then(response => {
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.updated, )
             setContact(response.data)
-            handleGetContactsList()
+            handleGetContactsList(FEEDBACK_TITLE_TEXT.updated, getUpdateContactSuccessMessage(contact.name), FEEDBACK_STATUS_TYPE.success);
         }).catch(error => {
             const { data: { message }, status } = error.response
-            handleShowFeedbackMessage('Something went wrong', message, (status === httpStatus.UNPROCESSABLE_ENTITY ? FEEDBACK_STATUS_TYPE.warning : FEEDBACK_STATUS_TYPE.error))
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.error, message, (status === httpStatus.UNPROCESSABLE_ENTITY ? FEEDBACK_STATUS_TYPE.warning : FEEDBACK_STATUS_TYPE.error))
         })
     }
 
