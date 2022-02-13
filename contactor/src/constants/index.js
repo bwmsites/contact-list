@@ -24,5 +24,6 @@ export const FEEDBACK_TITLE_TEXT = {
     created: 'Contact successfuly created',
     updated: 'Contact successfuly updated',
     deleted: 'Contact successfuly deleted',
+    restored: 'Contact successfuly restored',
     error: 'Something went wrong'
 }

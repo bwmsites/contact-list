@@ -9,3 +9,7 @@ export const getUpdateContactSuccessMessage = (contactName) => {
 export const getDeleteContactSuccessMessage = (contactName) => {
     return `Contact ${contactName} has been deleted.`;
 }
+
+export const getRestoreContactSuccessMessage = (contactName) => {
+    return `Contact ${contactName} has been restored.`;
+}

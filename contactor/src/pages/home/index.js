@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import httpStatus from 'http-status';
 import { OPERATIONS, TABLE_MESSAGES, BUTTON_LABELS, FEEDBACK_STATUS_TYPE, FEEDBACK_TITLE_TEXT } from '../../constants';
 import { getAllContacts, deleteContact, restoreContact, updateContact, createContact } from '../../services/contactService';
-import { getCreateContactSuccessMessage, getDeleteContactSuccessMessage, getUpdateContactSuccessMessage } from '../../helpers/feedbackMessagesHelper';
+import { getCreateContactSuccessMessage, getDeleteContactSuccessMessage, getRestoreContactSuccessMessage, getUpdateContactSuccessMessage } from '../../helpers/feedbackMessagesHelper';
 import {
     Container,
     Box,
@@ -101,17 +101,17 @@ const Home = () => {
 
         if (response.status === httpStatus.OK) {
             handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.deleted, getDeleteContactSuccessMessage(contact.name), FEEDBACK_STATUS_TYPE.success);
-            handleGetContactsList();
             resetStates();
+            handleGetContactsList(includeDeleted);
         }
     }
 
     const handleRestoreContact = async () => {
         const response = await restoreContact(contact.contact_id);
-
         if (response.status === httpStatus.OK) {
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.restored, getRestoreContactSuccessMessage(contact.name), FEEDBACK_STATUS_TYPE.success);
             handleSelectContact(response.data);
-            handleGetContactsList();
+            handleGetContactsList(includeDeleted);
         }
     }
 
@@ -119,7 +119,7 @@ const Home = () => {
         // TODO: Find a best way to handle axios errors without handling promises like this
         // NOTE: async / await seems to not work as expected when error are caught  
         updateContact(contact.contact_id, contact).then(response => {
-            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.updated, )
+            handleShowFeedbackMessage(FEEDBACK_TITLE_TEXT.updated, getUpdateContactSuccessMessage(response.data.name), FEEDBACK_STATUS_TYPE.success)
             setContact(response.data)
             handleGetContactsList(FEEDBACK_TITLE_TEXT.updated, getUpdateContactSuccessMessage(contact.name), FEEDBACK_STATUS_TYPE.success);
         }).catch(error => {
