@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import httpStatus from 'http-status';
-import { OPERATIONS, TABLE_MESSAGES, BUTTON_LABELS } from '../../constants';
+import { OPERATIONS, TABLE_MESSAGES, BUTTON_LABELS, FEEDBACK_STATUS_TYPE } from '../../constants';
 import { getAllContacts, deleteContact, restoreContact, updateContact, createContact } from '../../services/contactService';
 import {
     Container,
@@ -83,13 +83,15 @@ const Home = () => {
     }
 
     const handleCreateContact = () => {
+        // TODO: Find a best way to handle axios errors without handling promises like this
+        // NOTE: async / await seems to not work as expected when error are caught
         createContact(contact).then(response => {
-            handleShowFeedbackMessage('Contact successfuly created', `Contact ${contact.name} has been created.`, 'success');
+            handleShowFeedbackMessage('Contact successfuly created', `Contact ${contact.name} has been created.`, FEEDBACK_STATUS_TYPE.success);
             handleGetContactsList()
             setContact(response.data)
         }).catch(error => {
             const { data: { message }, status } = error.response
-            handleShowFeedbackMessage('Something went wrong', message, (status === httpStatus.UNPROCESSABLE_ENTITY ? 'warning' : 'error'))
+            handleShowFeedbackMessage('Something went wrong', message, (status === httpStatus.UNPROCESSABLE_ENTITY ? FEEDBACK_STATUS_TYPE.warning : FEEDBACK_STATUS_TYPE.error))
         })
     }
 
@@ -97,7 +99,7 @@ const Home = () => {
         const response = await deleteContact(contact.contact_id)
 
         if (response.status === httpStatus.OK) {
-            handleShowFeedbackMessage('Contact successfuly deleted', `Contact ${contact.name} has been deleted`, 'success')
+            handleShowFeedbackMessage('Contact successfuly deleted', `Contact ${contact.name} has been deleted`, FEEDBACK_STATUS_TYPE.success)
             handleGetContactsList()
             resetStates()
         }
@@ -113,18 +115,15 @@ const Home = () => {
     }
 
     const handleUpdateContact = async () => {
-        try {    
-            const response = await updateContact(contact.contact_id, contact)
-
-            if (response.status === httpStatus.UNPROCESSABLE_ENTITY) {
-                handleShowFeedbackMessage('Data Already Exists', `The phone ${contact.phone} already exists in the database`, 'warning');
-                return
-            }
-            
+        // TODO: Find a best way to handle axios errors without handling promises like this
+        // NOTE: async / await seems to not work as expected when error are caught  
+        updateContact(contact.contact_id, contact).then(response => {
+            setContact(response.data)
             handleGetContactsList()
-        } catch (error) {
-            handleShowFeedbackMessage('An Error Occurred', error, 'error');
-        }
+        }).catch(error => {
+            const { data: { message }, status } = error.response
+            handleShowFeedbackMessage('Something went wrong', message, (status === httpStatus.UNPROCESSABLE_ENTITY ? FEEDBACK_STATUS_TYPE.warning : FEEDBACK_STATUS_TYPE.error))
+        })
     }
 
     const handleOpenDeleteDialog = () => {
