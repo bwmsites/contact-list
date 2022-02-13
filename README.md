@@ -38,7 +38,12 @@ To help with project sharing we are using docker and docker-compose to handle a 
 cd backend && docker-compose up -d postgres
 ```
 
-Once you have the database up and running acess the server folder and execute the application
+Once you have the database up and running rename your ```.env.example inside``` inside the backend/src folder
+```bash
+mv .env.example .env
+```
+
+then acess the server folder and execute the application
 
 ```bash
 cd backend/src && yarn dev
