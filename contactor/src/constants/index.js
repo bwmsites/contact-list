@@ -13,3 +13,9 @@ export const BUTTON_LABELS = {
     create: 'Add Contact',
     update: 'Update Contact'
 }
+
+export const FEEDBACK_STATUS_TYPE = {
+    success: 'sucess',
+    warning: 'warning',
+    error: 'error'
+}
