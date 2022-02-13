@@ -23,6 +23,14 @@ export const restoreContact = async (contactId) => {
 }
 
 export const updateContact = async (contactId, data) => {
-    const response = await serviceRequest.patch(`${CONTACTS_URL}/${contactId}`, data)
-    return response
+    try {
+        const response = await serviceRequest.patch(`${CONTACTS_URL}/${contactId}`, data)
+        return response
+    } catch (error) {
+        return error
+    }
+}
+
+export const createContact = async (data) => {
+    return serviceRequest.post(CONTACTS_URL, data)
 }
