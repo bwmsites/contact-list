@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { getAllContacts, deleteContact, restoreContact, updateContact } from '../../services/contactService';
+import { useState, useEffect, useRef } from 'react';
+import httpStatus from 'http-status';
+import { getAllContacts, deleteContact, restoreContact, updateContact, createContact } from '../../services/contactService';
 import {
     Container,
     Box,
@@ -14,13 +15,20 @@ import {
     Flex,
     Button,
     Checkbox,
-    Text
+    Text,
+    AlertDialog,
+    AlertDialogOverlay,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogBody,
+    AlertDialogFooter,
+    useToast
 } from "@chakra-ui/react";
 
 
 const TABLE_MESSAGES = {
     filled: 'Click over a contact to select it',
-    empty: ''
+    empty: 'No contacts to show'
 }
 
 const OPERATIONS = {
@@ -37,13 +45,17 @@ const BUTTON_LABELS = {
 const CONTACT_ORIGINAL_STATUS = { name: null, phone: null, deleted: false }
 
 const Home = () => {
+    const toast = useToast()
+
     const [contacts, setContacts] = useState([])
     const [includeDeleted, setIncludeDeleted] = useState(false)
+
+    const cancelDeleteRef = useRef()
 
     const handleGetContactsList = async (includeDeleted = false) => {
         const response = await getAllContacts(includeDeleted);
 
-        if (response.status === 200) {
+        if (response.status === httpStatus.OK) {
             setContacts(response.data)
             setTableMessage(TABLE_MESSAGES.filled)
         }
@@ -60,6 +72,7 @@ const Home = () => {
     const [contact, setContact] = useState(CONTACT_ORIGINAL_STATUS)
     const [tableMessage, setTableMessage] = useState(TABLE_MESSAGES.empty)
     const [currentOperation, setCurrentOperation] = useState(OPERATIONS.create)
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
     const handleChangeContactName = (event) => {
         setContact({
@@ -85,10 +98,22 @@ const Home = () => {
         setCurrentOperation(OPERATIONS.create)
     }
 
+    const handleCreateContact = () => {
+        createContact(contact).then(response => {
+            handleShowFeedbackMessage('Contact successfuly created', `Contact ${contact.name} has been created.`, 'success');
+            handleGetContactsList()
+            setContact(response.data)
+        }).catch(error => {
+            const { data: { message }, status } = error.response
+            handleShowFeedbackMessage('Something went wrong', message, (status === httpStatus.UNPROCESSABLE_ENTITY ? 'warning' : 'error'))
+        })
+    }
+
     const handleDeleteContact = async () => {
         const response = await deleteContact(contact.contact_id)
 
-        if (response.status === 200) {
+        if (response.status === httpStatus.OK) {
+            handleShowFeedbackMessage('Contact successfuly deleted', `Contact ${contact.name} has been deleted`, 'success')
             handleGetContactsList()
             resetStates()
         }
@@ -97,22 +122,42 @@ const Home = () => {
     const handleRestoreContact = async () => {
         const response = await restoreContact(contact.contact_id)
 
-        if (response.status === 200) {
+        if (response.status === httpStatus.OK) {
             handleSelectContact(response.data)
             handleGetContactsList()
         }
     }
 
     const handleUpdateContact = async () => {
-        const response = await updateContact(contact.contact_id, contact)
+        try {    
+            const response = await updateContact(contact.contact_id, contact)
 
-        if (response.status === 422) {
-            console.log('DEU ERRO: ', response.data.message)
-            return
+            if (response.status === httpStatus.UNPROCESSABLE_ENTITY) {
+                handleShowFeedbackMessage('Data Already Exists', `The phone ${contact.phone} already exists in the database`, 'warning');
+                return
+            }
+            
+            handleGetContactsList()
+        } catch (error) {
+            handleShowFeedbackMessage('An Error Occurred', error, 'error');
         }
-        
-        handleGetContactsList()
     }
+
+    const handleOpenDeleteDialog = () => {
+        setIsDeleteDialogOpen(true);
+    }
+
+    const handleCloseDeleteDialog = () => {
+        setIsDeleteDialogOpen(false);
+    }
+
+    const handleShowFeedbackMessage = (title, description, status) => toast({
+        title,
+        description,
+        status,
+        duration: 9000,
+        isClosable: true
+    });
 
     return (
         <>
@@ -132,7 +177,7 @@ const Home = () => {
                         colorScheme='blue'
                         size='sm'
                         disabled={currentOperation === OPERATIONS.delete || contact.name === null || contact.deleted}
-                        onClick={currentOperation === OPERATIONS.create ? () => {} : handleUpdateContact}
+                        onClick={currentOperation === OPERATIONS.create ? handleCreateContact : handleUpdateContact}
                     >
                         { BUTTON_LABELS[currentOperation] }
                     </Button>
@@ -141,7 +186,7 @@ const Home = () => {
                         size='sm'
                         disabled={currentOperation === OPERATIONS.create || contact.deleted}
                         marginLeft='2'
-                        onClick={handleDeleteContact}
+                        onClick={handleOpenDeleteDialog}
                     >
                         Delete Contact
                     </Button>
@@ -171,14 +216,44 @@ const Home = () => {
                     <Tbody cursor='pointer'>
                         { contacts.length && contacts.map((contact, ix) => (
                             <Tr key={ix} onClick={() => handleSelectContact(contact)} bgColor={contact.deleted ? 'red.300' : ''}>
-                                <Td>{contact.name}</Td>
-                                <Td>{contact.phone}</Td>
+                                <Td textDecoration={contact.deleted ? 'line-through' : 'none'}>{contact.name}</Td>
+                                <Td textDecoration={contact.deleted ? 'line-through' : 'none'}>{contact.phone}</Td>
                             </Tr>
                         ))}
                     </Tbody>
                 </Table>
             </Box>
         </Container>
+        <AlertDialog
+            isOpen={isDeleteDialogOpen}
+            leastDestructiveRef={cancelDeleteRef}
+            onClose={handleCloseDeleteDialog}
+        >
+            <AlertDialogOverlay>
+                <AlertDialogContent>
+                    <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+                        Delete Contact
+                    </AlertDialogHeader>
+                    <AlertDialogBody>
+                        Are you sure you want to delete the selected contact?
+                    </AlertDialogBody>
+                    <AlertDialogFooter>
+                        <Button ref={cancelDeleteRef}
+                            onClick={handleCloseDeleteDialog}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            colorScheme='red'
+                            onClick={() => (handleDeleteContact() && handleCloseDeleteDialog())}
+                            ml={3}
+                        >
+                            Delete
+                        </Button>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialogOverlay>
+        </AlertDialog>
         </>
     );
 }
