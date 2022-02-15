@@ -19,7 +19,7 @@ services:
     networks:
       - bfc-network
   postgres-test:
-    container_name: postgres
+    container_name: postgres-test
     image: postgres:12.5-alpine
     environment:
       POSTGRES_USER: "postgres"
