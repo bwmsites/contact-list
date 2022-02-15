@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema, rules } from '@ioc:Adonis/Core/Validator'
+import { schema } from '@ioc:Adonis/Core/Validator'
 import Contact from 'App/Models/Contact'
 
 export default class ContactsController {
-	phoneExistsResponse = {
+	private phoneExistsResponse = {
 		message: 'The given phone number already exists in database',
 		code: 'PHONE_ALREADY_EXISTIS',
 	}
@@ -16,7 +15,7 @@ export default class ContactsController {
 			return await Contact.all()
 		}
 
-		return await Contact.query().select().where('deleted', false)
+		return await Contact.query().select().where('deleted', false).orderBy('contact_id')
 	}
 
 	public async getContactById({ request }: HttpContextContract) {
