@@ -22,6 +22,6 @@ async function startHttpServer() {
 configure({
 	files: ['test/**/*.spec.ts'],
 	before: [startHttpServer],
-	after: [async () => console.info('Tests finished. PG_PORT=', process.env.PG_PORT)],
+	after: [async () => console.info('Tests finished')],
 	bail: false,
 })
